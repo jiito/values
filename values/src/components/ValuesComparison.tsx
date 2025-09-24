@@ -1,43 +1,34 @@
-import { useState } from "react";
-import type { Value } from "@/data/values";
+import { useMemo, useState } from "react";
+import { values, type Value } from "@/data/values";
 import { ValueCard } from "./ValueCard";
 import { Timer } from "./Timer";
 import type { Comparison } from "@/utils/comparison";
 
 interface ValuesComparisonProps {
-  value1: Value;
-  value2: Value;
-  onSelect: (comparison: Comparison) => void;
+  valueIdx1: number;
+  valueIdx2: number;
+  // TODO: this can just be the selection because the parent component has the information...
+  onSelect: (winner: number, loser: number) => void;
   totalComparisons: number;
   currentComparison: number;
 }
 
 export function ValuesComparison({
-  value1,
-  value2,
+  valueIdx1,
+  valueIdx2,
   onSelect,
   totalComparisons,
   currentComparison,
 }: ValuesComparisonProps) {
-  const [selectedValue, setSelectedValue] = useState<Value | null>(null);
-  
-  const handleSelect = (value: Value) => {
-    setSelectedValue(value);
-    onSelect({
-      value1,
-      value2,
-      winner: value,
-    });
+  const getValue = (index: number) => values[index];
+
+  const value1 = useMemo(() => getValue(valueIdx1), [valueIdx1]);
+  const value2 = useMemo(() => getValue(valueIdx2), [valueIdx2]);
+
+  const handleSelect = (winner: number, loser: number) => {
+    onSelect(winner, loser);
   };
-  
-  const handleTimeUp = () => {
-    // If time is up and no selection was made, randomly select one
-    if (!selectedValue) {
-      const randomValue = Math.random() > 0.5 ? value1 : value2;
-      handleSelect(randomValue);
-    }
-  };
-  
+
   return (
     <div className="flex flex-col items-center justify-center gap-8 py-8">
       <div className="text-center">
@@ -45,20 +36,20 @@ export function ValuesComparison({
           {currentComparison} / {totalComparisons}
         </div>
       </div>
-      
-      <Timer duration={15} onTimeUp={handleTimeUp} />
-      
-      <div className="flex flex-col md:flex-row items-center justify-center gap-8">
-        <ValueCard 
-          value={value1} 
-          onClick={() => handleSelect(value1)} 
-          isSelected={selectedValue?.id === value1.id}
-        />
-        <ValueCard 
-          value={value2} 
-          onClick={() => handleSelect(value2)} 
-          isSelected={selectedValue?.id === value2.id}
-        />
+
+      <div className="flex flex-col items-center justify-center gap-8 md:flex-row">
+        {value1 && (
+          <ValueCard
+            value={value1}
+            onClick={() => handleSelect(valueIdx1, valueIdx2)}
+          />
+        )}
+        {value2 && (
+          <ValueCard
+            value={value2}
+            onClick={() => handleSelect(valueIdx2, valueIdx1)}
+          />
+        )}
       </div>
     </div>
   );
