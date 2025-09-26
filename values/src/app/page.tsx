@@ -47,24 +47,20 @@ export default function Home() {
             <button className="text-sm">Canvas</button>
           </div> */}
         </header>
-        <div>
-          <ol>
-            {rankedValues.map((value, index) => (
-              <li key={value.id}>
-                {index + 1}. {value.name}
-              </li>
-            ))}
-          </ol>
-        </div>
+        {/* <div>
+            <ol>
+              {rankedValues.map((value, index) => (
+                <li key={value.id}>
+                  {index + 1}. {value.name}
+                </li>
+              ))}
+            </ol>
+          </div> */}
         <div className="py-8">
           <div className="flex flex-col items-center justify-center gap-8 py-8">
             <div className="text-center">
               <div className="text-sm text-gray-500">
                 {seenComparisonCount} / {indexPairs.length}
-              </div>
-              <div>
-                {currentComparisonPairIndex[0]} vs{" "}
-                {currentComparisonPairIndex[1]}
               </div>
             </div>
 
@@ -90,6 +86,17 @@ export default function Home() {
             </div>
           </div>
         </div>
+        {seenComparisonCount === indexPairs.length ? (
+          <div>
+            <ol>
+              {rankedValues.map((value, index) => (
+                <li key={value.id}>
+                  {index + 1}. {value.name}
+                </li>
+              ))}
+            </ol>
+          </div>
+        ) : null}
       </div>
     </main>
   );
