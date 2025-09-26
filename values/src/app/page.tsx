@@ -3,7 +3,7 @@
 import { ValueCard } from "@/components/ValueCard";
 import { values } from "@/data/values";
 import { useRandomIndexPairs, useValueRankings } from "@/utils/comparison";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 export default function Home() {
   const [comparisonsMatrix, setComparisonsMatrix] = useState<number[][]>(
@@ -14,22 +14,33 @@ export default function Home() {
   );
   const indexPairs = useRandomIndexPairs();
   const [seenComparisonCount, setSeenComparisonCount] = useState<number>(0);
+  const [times, setTimes] = useState<number[]>([]);
   const [currentComparisonPairIndex, setCurrentComparisonPairIndex] = useState<
     [number, number]
   >(indexPairs[seenComparisonCount]!);
+  const startTime = useRef<number>(Date.now());
 
   const handleSelection = useCallback(
     (winner: number, loser: number) => {
+      const timeSpent = Date.now() - startTime.current;
+
       setComparisonsMatrix((prev) => {
         const newMatrix = [...prev];
         newMatrix[winner]![loser] = 1;
         return newMatrix;
       });
 
-      const nextComparisonIndex = seenComparisonCount + 1;
+      setTimes((prev) => {
+        const newTimes = [...prev];
+        newTimes.push(timeSpent);
+        return newTimes;
+      });
 
+      const nextComparisonIndex = seenComparisonCount + 1;
       setSeenComparisonCount(nextComparisonIndex);
       setCurrentComparisonPairIndex(indexPairs[nextComparisonIndex]!);
+
+      startTime.current = Date.now();
     },
     [indexPairs, seenComparisonCount],
   );
@@ -61,6 +72,14 @@ export default function Home() {
             <div className="text-center">
               <div className="text-sm text-gray-500">
                 {seenComparisonCount} / {indexPairs.length}
+                <br />
+                eta:{" "}
+                {(
+                  ((times.reduce((a, b) => a + b, 0) / 1000 / times.length) *
+                    (indexPairs.length - seenComparisonCount)) /
+                  60
+                ).toFixed(1)}{" "}
+                mins
               </div>
             </div>
 
