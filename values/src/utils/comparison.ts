@@ -1,4 +1,5 @@
-import type { Value } from "@/data/values";
+import { values, type Value } from "@/data/values";
+import { useCallback, useMemo } from "react";
 
 export interface Comparison {
   value1: Value;
@@ -48,50 +49,52 @@ export function getRandomValuePair(
   return [value1, value2];
 }
 
-export function calculateScores(comparisons: Comparison[]): Value[] {
-  const scoreMap = new Map<string, number>();
-
-  // Initialize scores
-  comparisons.forEach((comp) => {
-    // Ensure value1 and value2 exist before accessing their properties
-    if (comp.value1 && !scoreMap.has(comp.value1.id))
-      scoreMap.set(comp.value1.id, 0);
-    if (comp.value2 && !scoreMap.has(comp.value2.id))
-      scoreMap.set(comp.value2.id, 0);
-
-    // Add points for the winner
-    if (comp.winner) {
-      const currentScore = scoreMap.get(comp.winner.id) ?? 0;
-      scoreMap.set(comp.winner.id, currentScore + 1);
-    }
-  });
-
-  // Convert map to array of values with scores
-  return Array.from(scoreMap.entries())
-    .map(([id, score]) => {
-      // Find a comparison that contains this value id
-      const value = comparisons.find(
-        (comp) =>
-          (comp.value1 && comp.value1.id === id) ||
-          (comp.value2 && comp.value2.id === id),
-      );
-
-      if (!value) throw new Error(`Value with id ${id} not found`);
-
-      // Get the actual value object
-      let valueObj: Value;
-      if (value.value1 && value.value1.id === id) {
-        valueObj = value.value1;
-      } else if (value.value2) {
-        valueObj = value.value2;
-      } else {
-        throw new Error(`Could not determine value object for id ${id}`);
+export function useValueRankings(comparisonsMatrix: number[][]) {
+  const calculateScores = useCallback(() => {
+    const scores = Array(values.length).fill(0);
+    for (let i = 0; i < comparisonsMatrix.length; i++) {
+      for (const j of comparisonsMatrix[i]!) {
+        if (j === 1) {
+          scores[i]++;
+        }
       }
+    }
+    return scores as number[];
+  }, [comparisonsMatrix]);
 
-      return {
-        ...valueObj,
-        score,
-      };
-    })
-    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+  const scores = useMemo(() => calculateScores(), [calculateScores]);
+
+  const rankedValues = useMemo(() => {
+    return values
+      .map((value, index) => ({
+        ...value,
+        score: scores[index]!,
+      }))
+      .sort((a, b) => b.score - a.score);
+  }, [scores]);
+
+  return rankedValues;
 }
+
+const shuffleArray = (array: [number, number][]) => {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j]!, array[i]!];
+  }
+  return array;
+};
+
+export const useRandomIndexPairs = () => {
+  const indexPairs = useMemo<[number, number][]>(() => {
+    // only random in upper right diagonal
+    // 0 < i < k < n
+    const indexPairs: [number, number][] = [];
+    for (let i = 0; i < values.length; i++) {
+      for (let k = i + 1; k < values.length; k++) {
+        indexPairs.push([i, k]);
+      }
+    }
+    return shuffleArray(indexPairs);
+  }, []);
+  return indexPairs;
+};

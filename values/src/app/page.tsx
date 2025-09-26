@@ -1,14 +1,9 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { ValueCard } from "@/components/ValueCard";
 import { values } from "@/data/values";
-import { ValuesComparison } from "@/components/ValuesComparison";
-import { ValuesResults } from "@/components/ValuesResults";
-import { getRandomValuePair, calculateScores } from "@/utils/comparison";
-import type { Comparison } from "@/utils/comparison";
-
-// Number of comparisons to make
-const NUM_COMPARISONS = 10;
+import { useRandomIndexPairs, useValueRankings } from "@/utils/comparison";
+import { useCallback, useState } from "react";
 
 export default function Home() {
   const [comparisonsMatrix, setComparisonsMatrix] = useState<number[][]>(
@@ -17,54 +12,29 @@ export default function Home() {
       (): number[] => Array(values.length).fill(0) as number[],
     ),
   );
+  const indexPairs = useRandomIndexPairs();
+  const [seenComparisonCount, setSeenComparisonCount] = useState<number>(0);
   const [currentComparisonPairIndex, setCurrentComparisonPairIndex] = useState<
     [number, number]
-  >([0, 1]);
+  >(indexPairs[seenComparisonCount]!);
 
-  const seenComparisonCount = useMemo<number>(() => {
-    return (
-      currentComparisonPairIndex[0] * values.length +
-      currentComparisonPairIndex[1]
-    );
-  }, [currentComparisonPairIndex]);
+  const handleSelection = useCallback(
+    (winner: number, loser: number) => {
+      setComparisonsMatrix((prev) => {
+        const newMatrix = [...prev];
+        newMatrix[winner]![loser] = 1;
+        return newMatrix;
+      });
 
-  const handleSelection = (winner: number, loser: number) => {
-    // mark the winner
+      const nextComparisonIndex = seenComparisonCount + 1;
 
-    if (winner >= comparisonsMatrix.length) return;
+      setSeenComparisonCount(nextComparisonIndex);
+      setCurrentComparisonPairIndex(indexPairs[nextComparisonIndex]!);
+    },
+    [indexPairs, seenComparisonCount],
+  );
 
-    comparisonsMatrix[winner]![loser] = 1;
-
-    handleNextComparison();
-  };
-
-  // TODO: add a random aspect
-  const handleNextComparison = () => {
-    console.log("handleNextComparison", currentComparisonPairIndex);
-    console.log("values.length", values.length);
-
-    let nextIdx1 = currentComparisonPairIndex[0];
-    let nextIdx2 = currentComparisonPairIndex[1] + 1;
-
-    // If we've reached the end of the row, move to next row
-    if (nextIdx2 >= values.length) {
-      nextIdx1 = nextIdx1 + 1;
-      nextIdx2 = nextIdx1 + 1; // Start comparing with the next value after the current one
-    }
-
-    // Skip self-comparison
-    if (nextIdx1 === nextIdx2) {
-      nextIdx2 = nextIdx2 + 1;
-    }
-
-    // If we've exhausted all combinations, wrap around
-    if (nextIdx1 >= values.length - 1) {
-      nextIdx1 = 0;
-      nextIdx2 = 1;
-    }
-
-    setCurrentComparisonPairIndex([nextIdx1, nextIdx2]);
-  };
+  const rankedValues = useValueRankings(comparisonsMatrix);
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-white text-black">
@@ -77,15 +47,48 @@ export default function Home() {
             <button className="text-sm">Canvas</button>
           </div> */}
         </header>
-
+        <div>
+          <ol>
+            {rankedValues.map((value, index) => (
+              <li key={value.id}>
+                {index + 1}. {value.name}
+              </li>
+            ))}
+          </ol>
+        </div>
         <div className="py-8">
-          <ValuesComparison
-            valueIdx1={currentComparisonPairIndex[0]}
-            valueIdx2={currentComparisonPairIndex[1]}
-            onSelect={handleSelection}
-            totalComparisons={(values.length * (values.length - 1)) / 2}
-            currentComparison={seenComparisonCount}
-          />
+          <div className="flex flex-col items-center justify-center gap-8 py-8">
+            <div className="text-center">
+              <div className="text-sm text-gray-500">
+                {seenComparisonCount} / {indexPairs.length}
+              </div>
+              <div>
+                {currentComparisonPairIndex[0]} vs{" "}
+                {currentComparisonPairIndex[1]}
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center justify-center gap-8 md:flex-row">
+              <ValueCard
+                value={values[currentComparisonPairIndex[0]]!}
+                onClick={() =>
+                  handleSelection(
+                    currentComparisonPairIndex[0],
+                    currentComparisonPairIndex[1],
+                  )
+                }
+              />
+              <ValueCard
+                value={values[currentComparisonPairIndex[1]]!}
+                onClick={() =>
+                  handleSelection(
+                    currentComparisonPairIndex[1],
+                    currentComparisonPairIndex[0],
+                  )
+                }
+              />
+            </div>
+          </div>
         </div>
       </div>
     </main>
