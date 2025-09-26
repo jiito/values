@@ -74,11 +74,15 @@ export default function Home() {
                 {seenComparisonCount} / {indexPairs.length}
                 <br />
                 eta:{" "}
-                {(
-                  ((times.reduce((a, b) => a + b, 0) / 1000 / times.length) *
-                    (indexPairs.length - seenComparisonCount)) /
-                  60
-                ).toFixed(1)}{" "}
+                {times.length > 0
+                  ? (
+                      ((times.reduce((a, b) => a + b, 0) /
+                        1000 /
+                        times.length) *
+                        (indexPairs.length - seenComparisonCount)) /
+                      60
+                    ).toFixed(1)
+                  : "0"}{" "}
                 mins
               </div>
             </div>
