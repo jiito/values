@@ -13,7 +13,7 @@ export default function Home() {
     ),
   );
   const indexPairs = useRandomIndexPairs();
-  const [seenComparisonCount, setSeenComparisonCount] = useState<number>(435);
+  const [seenComparisonCount, setSeenComparisonCount] = useState<number>(0);
   const [currentComparisonPairIndex, setCurrentComparisonPairIndex] = useState<
     [number, number]
   >(indexPairs[seenComparisonCount]!);
