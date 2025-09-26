@@ -51,7 +51,14 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center justify-center bg-white text-black">
       <div className="container mx-auto max-w-4xl px-4">
         <header className="border-b border-gray-200 py-6">
-          <h1 className="text-3xl font-bold">values.</h1>
+          <h1 className="text-3xl font-bold">
+            values.
+            <a href="https://harvard.az1.qualtrics.com/jfe/form/SV_e35whN7tkXtvlHv">
+              <span className="align-super text-xs text-gray-500 hover:underline">
+                [1]
+              </span>
+            </a>
+          </h1>
           {/* <div className="mt-2 flex space-x-4">
             <button className="text-sm">Speed Run</button>
             <button className="text-sm">Meditative</button>
