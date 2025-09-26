@@ -13,7 +13,7 @@ export default function Home() {
     ),
   );
   const indexPairs = useRandomIndexPairs();
-  const [seenComparisonCount, setSeenComparisonCount] = useState<number>(0);
+  const [seenComparisonCount, setSeenComparisonCount] = useState<number>(435);
   const [currentComparisonPairIndex, setCurrentComparisonPairIndex] = useState<
     [number, number]
   >(indexPairs[seenComparisonCount]!);
@@ -65,24 +65,28 @@ export default function Home() {
             </div>
 
             <div className="flex flex-col items-center justify-center gap-8 md:flex-row">
-              <ValueCard
-                value={values[currentComparisonPairIndex[0]]!}
-                onClick={() =>
-                  handleSelection(
-                    currentComparisonPairIndex[0],
-                    currentComparisonPairIndex[1],
-                  )
-                }
-              />
-              <ValueCard
-                value={values[currentComparisonPairIndex[1]]!}
-                onClick={() =>
-                  handleSelection(
-                    currentComparisonPairIndex[1],
-                    currentComparisonPairIndex[0],
-                  )
-                }
-              />
+              {seenComparisonCount < indexPairs.length ? (
+                <>
+                  <ValueCard
+                    value={values[currentComparisonPairIndex[0]]!}
+                    onClick={() =>
+                      handleSelection(
+                        currentComparisonPairIndex[0],
+                        currentComparisonPairIndex[1],
+                      )
+                    }
+                  />
+                  <ValueCard
+                    value={values[currentComparisonPairIndex[1]]!}
+                    onClick={() =>
+                      handleSelection(
+                        currentComparisonPairIndex[1],
+                        currentComparisonPairIndex[0],
+                      )
+                    }
+                  />
+                </>
+              ) : null}
             </div>
           </div>
         </div>
