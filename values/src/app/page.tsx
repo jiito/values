@@ -54,7 +54,7 @@ export default function Home() {
           <h1 className="text-3xl font-bold">
             values.
             <a href="https://harvard.az1.qualtrics.com/jfe/form/SV_e35whN7tkXtvlHv">
-              <span className="align-super text-xs text-gray-500 hover:underline">
+              <span className="align-super text-sm text-gray-500 hover:underline">
                 [1]
               </span>
             </a>
@@ -78,9 +78,7 @@ export default function Home() {
           <div className="flex flex-col items-center justify-center gap-8 py-8">
             <div className="text-center">
               <div className="text-sm text-gray-500">
-                {seenComparisonCount} / {indexPairs.length}
-                <br />
-                eta:{" "}
+                {seenComparisonCount} / {indexPairs.length} pairs | eta:{" "}
                 {times.length > 0
                   ? (
                       ((times.reduce((a, b) => a + b, 0) /
@@ -94,7 +92,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="flex w-full flex-row items-center justify-center gap-8 md:flex-row">
+            <div className="flex w-full flex-col items-center justify-center gap-2 md:flex-row md:gap-8">
               {seenComparisonCount < indexPairs.length ? (
                 <>
                   <div className="flex flex-1 justify-end">
