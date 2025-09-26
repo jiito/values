@@ -4,5 +4,7 @@ simple app to compare values
 
 ## TODO:
 
-- [ ] test sorting funciton
-- [ ] add a function to generate a random comparison so we don't keep comparing the same value
+- [x] test sorting funciton
+- [x] add a function to generate a random comparison so we don't keep comparing the same value
+- [ ] beautify the ranked view
+- [ ] center justify cards
